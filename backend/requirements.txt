@@ -1,0 +1,8 @@
+fastapi==0.139.0
+uvicorn==0.51.0
+python-multipart==0.0.32
+supabase>=2.30.0
+huggingface-hub==1.23.0
+numpy>=1.20.0
+PyMuPDF>=1.20.0
+python-dotenv>=1.0.0
