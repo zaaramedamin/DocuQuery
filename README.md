@@ -82,7 +82,7 @@ This project processes uploaded PDF documents, segments the content page-by-page
 
 ### Configuration
 
-Create or update your `.env` file in the root directory:
+Copy `.env.example` to `.env` in the root directory and fill in your values:
 
 ```env
 # Hugging Face User Access Token (Required)
@@ -91,7 +91,13 @@ HF_TOKEN=hf_your_token_here
 # Supabase Credentials (Required)
 SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_KEY=your-supabase-service-role-or-anon-key
+
+# Optional hardening
+# ALLOWED_ORIGINS=https://your-frontend.vercel.app   # CORS allow-list (default: *)
+# MAX_UPLOAD_MB=25                                   # PDF upload size limit
 ```
+
+> ⚠️ The `.env` file is git-ignored — never commit real credentials.
 
 ### Database Migration
 
@@ -99,7 +105,7 @@ Before starting the application, you must run the database migration to configur
 1. Open your **Supabase Dashboard** for your project.
 2. Go to the **SQL Editor** from the left navigation panel.
 3. Click **New query**, paste the entire contents of the `supabase_schema.sql` file, and click **Run**.
-4. This will enable the `vector` extension, create the `document_chunks` table, configure the spatial HNSW index, and register the matching RPC function.
+4. This will enable the `vector` extension, create the `document_chunks` and `feedback` tables, configure the HNSW index, register the matching / filename-listing RPC functions, and create the private `documents` storage bucket that keeps uploaded PDFs durable across redeploys.
 
 ---
 

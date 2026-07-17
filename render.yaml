@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: docuquery-backend
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: HF_TOKEN
+        sync: false
