@@ -20,4 +20,6 @@ COPY --from=frontend-build /build/dist ./frontend/dist
 
 EXPOSE 8000
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Bind to the port the host provides ($PORT on Render), defaulting to 8000
+# for local runs. `exec` keeps uvicorn as PID 1 so it receives stop signals.
+CMD ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

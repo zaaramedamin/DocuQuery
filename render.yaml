@@ -2,12 +2,24 @@ services:
   - type: web
     name: docuquery-backend
     env: docker
-    dockerfilePath: Dockerfile
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     plan: free
+    region: frankfurt          # pick the region closest to your users
+    autoDeploy: true           # redeploy on push to the connected branch
+    healthCheckPath: /api/health
     envVars:
+      # Required — set these in the Render dashboard (marked secret).
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
         sync: false
       - key: HF_TOKEN
         sync: false
+      # Optional — uncomment / set in the dashboard as needed.
+      # - key: ALLOWED_ORIGINS        # e.g. https://your-app.vercel.app
+      #   sync: false
+      # - key: GENERATION_MODEL       # override the default chat model
+      #   sync: false
+      # - key: MAX_UPLOAD_MB
+      #   value: "25"

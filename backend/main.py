@@ -34,6 +34,12 @@ app.add_middleware(
 app.include_router(documents_router)
 app.include_router(query_router)
 
+
+# ── Health check (used by Render / uptime monitors) ──────────────────
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok"}
+
 # ── Static file serving (React production build) ─────────────────────
 # When running `uvicorn backend.main:app` from the project root,
 # the CWD is the project root, so "frontend/dist" resolves correctly.

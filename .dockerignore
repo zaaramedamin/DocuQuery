@@ -1,0 +1,26 @@
+# ── Python ────────────────────────────────────────────────────────
+rag-env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# ── Version control / editor ──────────────────────────────────────
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# ── Frontend (built in a separate Docker stage; never copy host output)
+frontend/node_modules/
+frontend/dist/
+
+# ── Runtime data & secrets ────────────────────────────────────────
+backend/uploads/
+.env
+.env.*
+!.env.example
+
+# ── Docs & local files ────────────────────────────────────────────
+*.md
+!README.md
+*.pdf

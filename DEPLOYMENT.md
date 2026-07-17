@@ -1,70 +1,110 @@
 # Deployment Guide – DocuQuery
 
-Follow these instructions to deploy the DocuQuery RAG Document QA Engine to production. We will host the **FastAPI Backend on Render** (via Docker to satisfy all binary dependencies) and the **React Frontend on Vercel**.
+This deploys the app as two services:
+
+- **Backend (FastAPI)** on **Render**, as a Docker container.
+- **Frontend (React + Vite)** on **Vercel**, as a static site pointed at the Render API.
+
+The backend also serves a built copy of the frontend at its own URL, which is
+handy for smoke-testing the API in a browser. Vercel is the production frontend.
 
 ---
 
-## Part 1: Deploying the Backend on Render
+## Prerequisites
 
-Deploying the backend as a Docker container on Render is highly recommended, as it automatically configures all native system library requirements for `PyMuPDF` (the PDF processing engine).
-
-### Step-by-Step:
-1. Push your repository to **GitHub**, **GitLab**, or **Bitbucket**.
-2. Log in to **[Render](https://render.com/)** and click **New +** → **Web Service**.
-3. Connect your Git repository.
-4. Configure the service settings:
-   - **Name**: `docuquery-backend` (or similar)
-   - **Environment**: **`Docker`** (Render will automatically detect your `Dockerfile`)
-   - **Region**: Select the region closest to you
-   - **Branch**: `main` (or your active branch)
-   - **Plan**: Select **`Free`** (or your preferred tier)
-5. Click **Advanced** and add the following **Environment Variables**:
-   - `SUPABASE_URL`: Your Supabase Project URL (e.g. `https://your-project-id.supabase.co`)
-   - `SUPABASE_KEY`: Your Supabase secure `service_role` secret key (starts with `sb_secret_` or `eyJ...`)
-   - `HF_TOKEN`: Your Hugging Face access token (starts with `hf_...`)
-6. Click **Create Web Service**. 
-7. Once the deploy finishes, copy your backend URL (e.g. `https://docuquery-backend.onrender.com`).
+1. A **Supabase** project with the schema applied. Open the SQL Editor, paste the
+   full contents of [`supabase_schema.sql`](./supabase_schema.sql), and run it.
+   This creates the `document_chunks` and `feedback` tables, the vector index,
+   the `match_documents` / `list_document_filenames` RPCs, and the private
+   `documents` storage bucket (which keeps uploaded PDFs durable across
+   redeploys — Render's free disk is ephemeral).
+2. A **Hugging Face** access token with the *"Make calls to Inference Providers"*
+   permission, and at least one provider enabled that serves the chat model
+   (see [Inference Providers settings](https://huggingface.co/settings/inference-providers)).
+3. Your code pushed to **GitHub / GitLab / Bitbucket**.
 
 ---
 
-## Part 2: Deploying the Frontend on Vercel
+## Part 1: Backend on Render
 
-Vercel is the ideal host for the React + TypeScript frontend.
+The repo ships a [`render.yaml`](./render.yaml) blueprint, so you can either use
+**New + → Blueprint** (Render reads the file) or configure a Web Service manually.
 
-### Step-by-Step:
-1. Log in to **[Vercel](https://vercel.com/)** and click **Add New** → **Project**.
-2. Import your Git repository.
-3. Configure the Project settings:
-   - **Framework Preset**: **`Vite`** (automatically detected)
-   - **Root Directory**: Select **`frontend`** (click Edit, navigate to `frontend`, and select it)
+### Using the Blueprint (recommended)
+1. In Render, click **New + → Blueprint** and connect your repository.
+2. Render detects `render.yaml` and proposes the `docuquery-backend` service.
+3. Fill in the environment variables it marks as required (see the table below).
+4. Click **Apply**. Render builds the Docker image and deploys.
+
+### Manual setup (alternative)
+- **Environment**: `Docker` (auto-detects the `Dockerfile`)
+- **Health Check Path**: `/api/health`
+- **Plan / Region**: your choice (`render.yaml` defaults to `free` / `frankfurt`)
+
+### Backend environment variables
+
+| Key | Required | Description |
+| :--- | :--- | :--- |
+| `SUPABASE_URL` | ✅ | Your Supabase project REST endpoint |
+| `SUPABASE_KEY` | ✅ | Supabase `service_role` secret key |
+| `HF_TOKEN` | ✅ | Hugging Face access token |
+| `ALLOWED_ORIGINS` | ⬜ | Comma-separated allow-list, e.g. your Vercel URL. Defaults to `*` |
+| `GENERATION_MODEL` | ⬜ | Override the default `meta-llama/Llama-3.1-8B-Instruct` |
+| `MAX_UPLOAD_MB` | ⬜ | Max PDF upload size (default `25`) |
+
+> The container binds to the `PORT` Render provides automatically — no port
+> config needed.
+
+Once deployed, note the backend URL (e.g. `https://docuquery-backend.onrender.com`)
+and confirm `https://<url>/api/health` returns `{"status":"ok"}`.
+
+> **Free-tier note:** the service spins down after inactivity, so the first
+> request after an idle period can take ~50 seconds while it wakes up. The UI
+> shows a loading state during this.
+
+---
+
+## Part 2: Frontend on Vercel
+
+1. In Vercel, **Add New → Project** and import your repository.
+2. Configure:
+   - **Framework Preset**: `Vite` (auto-detected)
+   - **Root Directory**: `frontend`
    - **Build Command**: `npm run build` (default)
    - **Output Directory**: `dist` (default)
-4. Under **Environment Variables**, add:
+3. Under **Environment Variables**, add:
    - **Key**: `VITE_API_URL`
-   - **Value**: Your Render backend URL copied from Part 1 (e.g., `https://docuquery-backend.onrender.com`)
-   > [!IMPORTANT]
-   > Do **not** append a trailing slash `/` or `/api` to the `VITE_API_URL`. Ensure it reads exactly like `https://docuquery-backend.onrender.com`.
-5. Click **Deploy**.
-6. Vercel will build the frontend and serve it at a public URL (e.g. `https://docuquery-frontend.vercel.app`).
+   - **Value**: your Render backend URL, with **no** trailing slash and **no**
+     `/api` suffix — e.g. `https://docuquery-backend.onrender.com`
+4. Click **Deploy**.
+
+SPA routing is handled by [`frontend/vercel.json`](./frontend/vercel.json).
+
+---
+
+## Part 3: Lock down CORS (recommended)
+
+Once you know the Vercel URL, set `ALLOWED_ORIGINS` on the Render service to it
+(e.g. `https://docuquery.vercel.app`) and redeploy. This restricts the API to
+your frontend instead of the permissive `*` default.
+
+---
+
+## How it works in production
+- The Vercel frontend reads `VITE_API_URL` at build time and calls
+  `<VITE_API_URL>/api/...` directly on Render.
+- The Render backend embeds queries, runs vector search in Supabase, and streams
+  the LLM answer back via Server-Sent Events.
+- Uploaded PDFs are cached on the backend's local disk and mirrored to Supabase
+  Storage, so citation previews keep working after a redeploy.
 
 ---
 
 ## Environment Variable Checklist
 
-### Backend Env (Render Dashboard)
-| Key | Value Description |
-| :--- | :--- |
-| `SUPABASE_URL` | Your Supabase Project REST endpoint |
-| `SUPABASE_KEY` | Supabase private `service_role` token |
-| `HF_TOKEN` | Hugging Face Read access token |
+### Backend (Render)
+`SUPABASE_URL`, `SUPABASE_KEY`, `HF_TOKEN` (required); `ALLOWED_ORIGINS`,
+`GENERATION_MODEL`, `MAX_UPLOAD_MB` (optional).
 
-### Frontend Env (Vercel Dashboard)
-| Key | Value Description |
-| :--- | :--- |
-| `VITE_API_URL` | The public URL of your Render backend |
-
----
-
-## How It Works in Production
-- The frontend loads environmental settings during the build stage. When fetching `/api/query` or `/api/documents`, it targets `VITE_API_URL` directly.
-- The `vercel.json` rewrite configuration handles SPA fallback routing so you can reload individual sub-pages without getting `404 Not Found` errors.
+### Frontend (Vercel)
+`VITE_API_URL` — the public URL of your Render backend.

@@ -3,8 +3,10 @@
  * Each function maps to one backend endpoint.
  */
 
-// Load API base URL from Vite environment variables for production deployment
-export const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+// Load API base URL from Vite environment variables for production deployment.
+// Strip a trailing slash so a value like "https://api.example.com/" still
+// produces correct "…/api/…" URLs.
+export const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 const API = `${API_BASE_URL}/api`;
 
 export async function fetchDocuments(): Promise<string[]> {
