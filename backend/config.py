@@ -18,6 +18,14 @@ HF_TOKEN: str | None = os.getenv("HF_TOKEN")
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 GENERATION_MODEL = "Qwen/Qwen2.5-7B-Instruct"
 
+# ── App settings ──────────────────────────────────────────────────────
+# Comma-separated list of allowed CORS origins; defaults to "*" for local dev.
+ALLOWED_ORIGINS: list[str] = [
+    o.strip() for o in os.getenv("ALLOWED_ORIGINS", "*").split(",") if o.strip()
+]
+# Maximum accepted PDF upload size (bytes).
+MAX_UPLOAD_BYTES: int = int(os.getenv("MAX_UPLOAD_MB", "25")) * 1024 * 1024
+
 if not HF_TOKEN:
     print(
         "Warning: HF_TOKEN is not set. The application will fail to run queries.",

@@ -49,3 +49,32 @@ begin
   limit match_count;
 end;
 $$;
+
+-- Efficient DISTINCT filename listing (avoids fetching one row per chunk)
+create or replace function list_document_filenames()
+returns setof text
+language sql
+as $$
+  select distinct filename from document_chunks;
+$$;
+
+-- ══════════════════════════════════════════════════════════════════
+-- Storage bucket for the original PDF files
+-- Keeps uploads durable across redeploys on ephemeral-filesystem hosts
+-- (accessed by the backend with the service_role key only).
+-- ══════════════════════════════════════════════════════════════════
+insert into storage.buckets (id, name, public)
+values ('documents', 'documents', false)
+on conflict (id) do nothing;
+
+-- ══════════════════════════════════════════════════════════════════
+-- User feedback table for thumbs-up / thumbs-down on AI responses
+-- ══════════════════════════════════════════════════════════════════
+create table if not exists feedback (
+  id bigserial primary key,
+  message_id text not null,
+  feedback text not null,    -- 'up' or 'down'
+  question text default '',
+  answer text default '',
+  created_at timestamptz default now()
+);

@@ -12,17 +12,20 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 # Import config first so env/clients are initialized
-import backend.config  # noqa: F401
+from backend.config import ALLOWED_ORIGINS
 from backend.routes.documents import router as documents_router
 from backend.routes.query import router as query_router
 
 app = FastAPI(title="DocuQuery – Document QA Engine")
 
 # ── CORS ──────────────────────────────────────────────────────────────
+# Credentials are only allowed when explicit origins are configured:
+# the "*" wildcard + credentials combination is rejected by browsers
+# and would otherwise reflect any origin.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=ALLOWED_ORIGINS != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -34,7 +37,7 @@ app.include_router(query_router)
 # ── Static file serving (React production build) ─────────────────────
 # When running `uvicorn backend.main:app` from the project root,
 # the CWD is the project root, so "frontend/dist" resolves correctly.
-_frontend_dist = os.path.join("frontend", "dist")
+_frontend_dist = os.path.abspath(os.path.join("frontend", "dist"))
 
 if os.path.isdir(_frontend_dist):
     _assets_dir = os.path.join(_frontend_dist, "assets")
@@ -47,8 +50,10 @@ if os.path.isdir(_frontend_dist):
 
     @app.get("/{rest_of_path:path}")
     def serve_spa(rest_of_path: str):
-        file_path = os.path.join(_frontend_dist, rest_of_path)
-        if os.path.isfile(file_path):
+        # Resolve and confine the path to the dist directory to prevent
+        # path traversal (e.g. "/../.env").
+        file_path = os.path.abspath(os.path.join(_frontend_dist, rest_of_path))
+        if file_path.startswith(_frontend_dist + os.sep) and os.path.isfile(file_path):
             return FileResponse(file_path)
         # SPA fallback
         return FileResponse(os.path.join(_frontend_dist, "index.html"))
