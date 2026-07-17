@@ -15,8 +15,18 @@ dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 # ── Hugging Face ──────────────────────────────────────────────────────
 HF_TOKEN: str | None = os.getenv("HF_TOKEN")
+
+# NOTE: the embedding dimension (384) is baked into supabase_schema.sql
+# (vector(384)); changing this model to one with a different dimension
+# also requires updating the schema and re-indexing every document.
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-GENERATION_MODEL = "Qwen/Qwen2.5-7B-Instruct"
+
+# Chat model served via HF Inference Providers. It must be served by a
+# provider your token has access to — check the model page or
+# https://huggingface.co/settings/inference-providers. Override with the
+# GENERATION_MODEL env var (e.g. "Qwen/Qwen2.5-72B-Instruct" for higher
+# quality at greater cost).
+GENERATION_MODEL = os.getenv("GENERATION_MODEL", "meta-llama/Llama-3.1-8B-Instruct")
 
 # ── App settings ──────────────────────────────────────────────────────
 # Comma-separated list of allowed CORS origins; defaults to "*" for local dev.

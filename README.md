@@ -42,7 +42,7 @@ This project processes uploaded PDF documents, segments the content page-by-page
 ```
 
 - **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (384-dimensional dense vectors)
-- **Generative Model**: `Qwen/Qwen2.5-7B-Instruct` (Fast and accurate instruction-following)
+- **Generative Model**: `meta-llama/Llama-3.1-8B-Instruct` (fast, accurate instruction-following; override via the `GENERATION_MODEL` env var). The model must be served by a provider your Hugging Face token can access — see [Inference Providers settings](https://huggingface.co/settings/inference-providers).
 
 ---
 
