@@ -1,28 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* ── Surface palette ─────────────────────────────────────────── */
-  --bg-root: #1a1a2e;
-  --bg-surface: #16213e;
-  --bg-elevated: #0f3460;
-  --bg-card: rgba(15, 52, 96, 0.35);
-  --bg-card-hover: rgba(15, 52, 96, 0.55);
-  --bg-input: rgba(22, 33, 62, 0.8);
-  --border-subtle: rgba(83, 120, 180, 0.18);
-  --border-medium: rgba(83, 120, 180, 0.30);
+  /* ── Surface palette (slate / deep indigo) ───────────────────── */
+  --bg-root: #0b1120;
+  --bg-surface: #0f172a;
+  --bg-elevated: #1e293b;
+  --bg-card: rgba(30, 41, 59, 0.55);
+  --bg-card-hover: rgba(30, 41, 59, 0.85);
+  --bg-input: rgba(15, 23, 42, 0.85);
+  --border-subtle: rgba(100, 116, 139, 0.18);
+  --border-medium: rgba(100, 116, 139, 0.32);
 
-  /* ── Accent palette ──────────────────────────────────────────── */
-  --accent: #e94560;
-  --accent-hover: #d63851;
-  --accent-light: rgba(233, 69, 96, 0.12);
-  --accent-glow: rgba(233, 69, 96, 0.35);
-  --secondary: #ffc947;
-  --secondary-light: rgba(255, 201, 71, 0.12);
+  /* ── Accent palette (indigo / violet) ────────────────────────── */
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-light: rgba(99, 102, 241, 0.13);
+  --accent-glow: rgba(99, 102, 241, 0.35);
+  --secondary: #38bdf8;
+  --secondary-light: rgba(56, 189, 248, 0.12);
 
   /* ── Text ─────────────────────────────────────────────────────── */
-  --text-primary: #eef0f6;
-  --text-secondary: #a0aec0;
-  --text-muted: #637590;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
   --text-inverse: #0f172a;
 
   /* ── Semantic ─────────────────────────────────────────────────── */
@@ -41,7 +41,7 @@
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
   --shadow-md: 0 4px 14px rgba(0,0,0,0.15);
-  --shadow-lg: 0 8px 30px rgba(0,0,0,0.2);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.35);
   --shadow-glow: 0 0 20px var(--accent-glow);
 }
 
@@ -51,13 +51,18 @@
   padding: 0;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-root);
   color: var(--text-primary);
   overflow: hidden;
   height: 100vh;
-  width: 100vw;
+  height: 100dvh; /* correct viewport on mobile browsers with dynamic UI chrome */
+  width: 100%;
   display: flex;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -68,8 +73,12 @@ body {
   height: 100%;
 }
 
+button {
+  font-family: var(--font-sans);
+}
+
 /* ── Scrollbar ─────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(83,120,180,0.3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(83,120,180,0.5); }
+::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.5); }

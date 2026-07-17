@@ -3,9 +3,9 @@
  * Each function maps to one backend endpoint.
  */
 
-import type { Source } from './types';
-
-const API = '/api';
+// Load API base URL from Vite environment variables for production deployment
+export const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const API = `${API_BASE_URL}/api`;
 
 export async function fetchDocuments(): Promise<string[]> {
   const res = await fetch(`${API}/documents`);
@@ -31,18 +31,15 @@ export async function deleteDocument(filename: string): Promise<void> {
   if (!res.ok) throw new Error('Deletion failed');
 }
 
-export async function queryDocuments(
+export async function sendFeedback(
+  messageId: string,
+  feedback: 'up' | 'down',
   question: string,
-  filename: string | null,
-): Promise<{ answer: string; sources: Source[] }> {
-  const res = await fetch(`${API}/query`, {
+  answer: string,
+): Promise<void> {
+  await fetch(`${API}/feedback`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, filename }),
+    body: JSON.stringify({ message_id: messageId, feedback, question, answer }),
   });
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || 'Query failed');
-  }
-  return res.json();
 }

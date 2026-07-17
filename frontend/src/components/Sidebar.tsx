@@ -4,7 +4,7 @@
 
 import { useRef, useState } from 'react';
 import type { DragEvent, FormEvent } from 'react';
-import { UploadCloud, Trash2, FileText } from 'lucide-react';
+import { UploadCloud, Trash2, FileText, X } from 'lucide-react';
 import * as api from '../api';
 
 interface SidebarProps {
@@ -12,6 +12,8 @@ interface SidebarProps {
   selectedDocument: string | null;
   dbOnline: boolean;
   dbMessage: string;
+  open: boolean;
+  onClose: () => void;
   onDocumentsChange: () => void;
   onSelectDocument: (filename: string | null) => void;
 }
@@ -21,6 +23,8 @@ export default function Sidebar({
   selectedDocument,
   dbOnline,
   dbMessage,
+  open,
+  onClose,
   onDocumentsChange,
   onSelectDocument,
 }: SidebarProps) {
@@ -107,12 +111,15 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${open ? 'open' : ''}`}>
       {/* ── Brand header ──────────────────────────────────────── */}
       <div className="brand-header">
         <div className="logo-area">
-          <img src="/nanobanana_logo.png" alt="NanoBanana" className="logo-img" />
+          <img src="/logo.svg" alt="DocuQuery" className="logo-img" />
           <h1>Docu<span>Query</span></h1>
+          <button className="sidebar-close-btn" onClick={onClose} aria-label="Close sources panel">
+            <X size={18} />
+          </button>
         </div>
         <p className="tagline">Intelligent Document RAG System</p>
 

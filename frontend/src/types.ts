@@ -13,4 +13,8 @@ export interface Message {
   sender: 'user' | 'assistant' | 'system';
   text: string;
   sources?: Source[];
+  /** The user question this assistant message answered (used for feedback). */
+  question?: string;
+  /** Feedback the user gave on this assistant message. */
+  feedback?: 'up' | 'down';
 }

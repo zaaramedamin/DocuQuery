@@ -1,0 +1,19 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dq-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#dq-bg)"/>
+  <!-- document with folded corner -->
+  <path d="M20 13h15l9 9v27a2.5 2.5 0 0 1-2.5 2.5h-21A2.5 2.5 0 0 1 18 49V15.5A2.5 2.5 0 0 1 20.5 13z" fill="#ffffff"/>
+  <path d="M35 13l9 9h-9z" fill="#c7d2fe"/>
+  <!-- text lines -->
+  <rect x="23" y="27" width="18" height="2.6" rx="1.3" fill="#6366f1" opacity="0.9"/>
+  <rect x="23" y="33" width="14" height="2.6" rx="1.3" fill="#6366f1" opacity="0.6"/>
+  <rect x="23" y="39" width="10" height="2.6" rx="1.3" fill="#6366f1" opacity="0.38"/>
+  <!-- magnifying glass -->
+  <circle cx="41" cy="41" r="7.5" fill="none" stroke="#312e81" stroke-width="3.2"/>
+  <line x1="46.5" y1="46.5" x2="52" y2="52" stroke="#312e81" stroke-width="3.2" stroke-linecap="round"/>
+</svg>
