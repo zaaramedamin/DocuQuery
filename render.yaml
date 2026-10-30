@@ -14,12 +14,17 @@ services:
         sync: false
       - key: SUPABASE_KEY
         sync: false
-      - key: HF_TOKEN
+      - key: GEMINI_API_KEY
         sync: false
       # Optional — uncomment / set in the dashboard as needed.
       # - key: ALLOWED_ORIGINS        # e.g. https://your-app.vercel.app
       #   sync: false
       # - key: GENERATION_MODEL       # override the default chat model
       #   sync: false
-      # - key: MAX_UPLOAD_MB
-      #   value: "25"
+      # - key: MAX_UPLOAD_MB          # Free plan file limit (default 10)
+      #   value: "10"
+      # Pro is a demo with no payment. Set to false to switch the Upgrade button off.
+      # - key: BILLING_DEMO_MODE
+      #   value: "true"
+      # - key: FRONTEND_URL           # your site, used by password-reset emails
+      #   sync: false

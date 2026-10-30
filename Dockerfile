@@ -22,4 +22,8 @@ EXPOSE 8000
 
 # Bind to the port the host provides ($PORT on Render), defaulting to 8000
 # for local runs. `exec` keeps uvicorn as PID 1 so it receives stop signals.
-CMD ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# --proxy-headers / --forwarded-allow-ips: the app sits behind the host's load
+# balancer (Render, etc.). Trusting its X-Forwarded-For header lets the per-IP
+# sign-in rate limit see each visitor's real address instead of the proxy's.
+WORKDIR /app/backend
+CMD ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
