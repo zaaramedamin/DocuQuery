@@ -5,48 +5,54 @@ These are pure-logic functions with no knowledge of FastAPI or HTTP.
 """
 
 import numpy as np
-from backend.config import hf_client, EMBEDDING_MODEL
+from google.genai import types
+from config import gemini_client, EMBEDDING_MODEL, EMBEDDING_DIM
 
-# all-MiniLM-L6-v2 truncates input at 256 word-piece tokens (~180 words).
-# Chunks larger than that are silently cut off by the embedding model,
-# making their tail invisible to semantic search.
+# Chunk size controls retrieval granularity: small chunks give precise
+# citations. gemini-embedding-2 accepts up to 8,192 tokens per input, so
+# this can be raised if answers need more surrounding context.
 DEFAULT_CHUNK_WORDS = 180
 DEFAULT_OVERLAP_WORDS = 30
 
-# Number of texts sent to the HF feature-extraction endpoint per request.
+# Number of chunks sent to the Gemini embedding endpoint per request.
 EMBEDDING_BATCH_SIZE = 32
 
 
-def get_embedding(text: str) -> np.ndarray:
-    """Generate a dense vector embedding for the given text."""
-    if not hf_client:
-        raise RuntimeError("Hugging Face client is not initialized (HF_TOKEN missing).")
-    result = hf_client.feature_extraction(text, model=EMBEDDING_MODEL)
-    return np.array(result).flatten()
+def _embed(texts: list[str]) -> list[np.ndarray]:
+    """Embed each text separately, using a single API call."""
+    if not gemini_client:
+        raise RuntimeError("Gemini client is not initialized (GEMINI_API_KEY missing).")
+
+    # gemini-embedding-2 merges a plain list of strings into ONE vector.
+    # Wrapping each text in its own Content returns one vector per text.
+    contents = [types.Content(parts=[types.Part(text=t)]) for t in texts]
+    result = gemini_client.models.embed_content(
+        model=EMBEDDING_MODEL,
+        contents=contents,
+        config=types.EmbedContentConfig(output_dimensionality=EMBEDDING_DIM),
+    )
+    vectors = [np.array(e.values, dtype=np.float32) for e in (result.embeddings or [])]
+    if len(vectors) != len(texts):
+        raise RuntimeError(
+            f"Embedding count mismatch: sent {len(texts)} texts, got {len(vectors)} vectors."
+        )
+    return vectors
+
+
+def get_embedding(query: str) -> np.ndarray:
+    """Embed a search query (uses Gemini's query-side retrieval prefix)."""
+    return _embed([f"task: search result | query: {query}"])[0]
 
 
 def get_embeddings(texts: list[str]) -> list[np.ndarray]:
     """
-    Generate embeddings for many texts, batching API calls instead of
-    issuing one HTTP round-trip per chunk. Falls back to per-text calls
-    if the endpoint rejects a batched payload.
+    Embed document chunks (uses Gemini's document-side retrieval prefix),
+    batching API calls instead of issuing one round-trip per chunk.
     """
-    if not hf_client:
-        raise RuntimeError("Hugging Face client is not initialized (HF_TOKEN missing).")
-
     embeddings: list[np.ndarray] = []
     for start in range(0, len(texts), EMBEDDING_BATCH_SIZE):
         batch = texts[start : start + EMBEDDING_BATCH_SIZE]
-        try:
-            result = np.array(hf_client.feature_extraction(batch, model=EMBEDDING_MODEL))
-            if result.ndim == 1:  # single flat vector returned
-                result = result.reshape(1, -1)
-            if result.shape[0] != len(batch):
-                raise ValueError("Batch embedding count mismatch")
-            embeddings.extend(result[i] for i in range(result.shape[0]))
-        except Exception:
-            # Fallback: embed one at a time
-            embeddings.extend(get_embedding(t) for t in batch)
+        embeddings.extend(_embed([f"title: none | text: {t}" for t in batch]))
     return embeddings
 
 
