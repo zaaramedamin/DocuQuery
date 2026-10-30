@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DocuQuery - Intelligent Document QA Engine</title>
+    <script>
+      // Apply the saved theme before the page paints, so a dark theme never flashes white.
+      try {
+        var saved = JSON.parse(localStorage.getItem('docuquery.preferences') || '{}');
+        if (saved.theme === 'dark' || saved.theme === 'light') {
+          document.documentElement.setAttribute('data-theme', saved.theme);
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

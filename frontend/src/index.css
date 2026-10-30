@@ -1,84 +1,242 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
 
+/* ══════════════════════════════════════════════════════════════════
+   DocuQuery design tokens
+   Quiet monochrome workspace. Ink (near-black) marks what is active; the soft grey tints
+   are reserved for the user's own words (questions) and the welcome canvas. The Pro plan uses ink too.
+   ══════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── Surface palette (slate / deep indigo) ───────────────────── */
-  --bg-root: #0b1120;
-  --bg-surface: #0f172a;
-  --bg-elevated: #1e293b;
-  --bg-card: rgba(30, 41, 59, 0.55);
-  --bg-card-hover: rgba(30, 41, 59, 0.85);
-  --bg-input: rgba(15, 23, 42, 0.85);
-  --border-subtle: rgba(100, 116, 139, 0.18);
-  --border-medium: rgba(100, 116, 139, 0.32);
+  /* Surfaces */
+  --canvas: #f3f3f5;          /* behind floating panels, auth backdrop fallback */
+  --surface: #ffffff;
+  --subtle: #f6f6f8;          /* source cards, chips, inputs */
+  --subtle-hover: #efeff2;
+  --line: #eaeaee;            /* hairlines */
+  --line-strong: #dcdce2;
 
-  /* ── Accent palette (indigo / violet) ────────────────────────── */
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
-  --accent-light: rgba(99, 102, 241, 0.13);
-  --accent-glow: rgba(99, 102, 241, 0.35);
-  --secondary: #38bdf8;
-  --secondary-light: rgba(56, 189, 248, 0.12);
+  /* Ink */
+  --ink: #18181b;
+  --ink-2: #52525b;
+  --ink-3: #8e8e98;
+  --ink-inverse: #ffffff;
 
-  /* ── Text ─────────────────────────────────────────────────────── */
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #0f172a;
+  /* Accent */
+  --accent: #18181b;
+  --accent-ink: #18181b;
+  --accent-soft: #e9e9ee;        /* user question bubble */
+  --accent-wash: #f1f1f4;   /* active row / selected */
+  --canvas-tint: #e4e4ea; /* welcome + share pages */
+  --focus-border: rgba(24, 24, 27, 0.4);
 
-  /* ── Semantic ─────────────────────────────────────────────────── */
-  --success: #10b981;
-  --success-light: rgba(16, 185, 129, 0.12);
-  --error: #f43f5e;
-  --error-light: rgba(244, 63, 94, 0.12);
+  /* Status */
+  --danger: #d93d42;
+  --danger-wash: #fdeeee;
+  --success: #24895c;
+  --success-wash: #e9f6ef;
+  --highlight: #fff3c4;
 
-  /* ── Tokens ───────────────────────────────────────────────────── */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --sidebar-width: 300px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-pill: 9999px;
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
-  --shadow-md: 0 4px 14px rgba(0,0,0,0.15);
-  --shadow-lg: 0 8px 30px rgba(0,0,0,0.35);
-  --shadow-glow: 0 0 20px var(--accent-glow);
+  /* Derived colors (so the dark theme can swap them) */
+  --ink-hover: #2b2b31;
+  --disabled: #d4d4da;
+  --danger-wash-hover: #fbdede;
+  --prose: #3f3f46;
+  --panel-bg: #fbfbfc;        /* library drawer, side cards */
+  --viewer-bg: #ececf0;
+  --glass: rgba(255, 255, 255, 0.92);
+  --scroll: #dddde3;
+  --scroll-hover: #c9c9d1;
+  --overlay: rgba(24, 24, 27, 0.28);
+  --pro: #18181b;             /* the Upgrade to Pro button */
+  --pro-hover: #2b2b31;
+  --pro-wash: #f1f1f4;
+
+  /* Type */
+  --font: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 28px;
+
+  /* Shape */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-pill: 999px;
+  --shadow-pop: 0 12px 32px -8px rgba(24, 24, 27, 0.16), 0 2px 6px rgba(24, 24, 27, 0.06);
+  --shadow-soft: 0 1px 2px rgba(24, 24, 27, 0.05);
+
+  /* Layout */
+  --rail-w: 64px;
+  --topbar-h: 64px;
+  --panel-w: 340px;
+  --chat-w: 720px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  color-scheme: light;
 }
 
-* {
+/* ══════════════════════════════════════════════════════════════════
+   Dark theme: chosen in Settings, or followed from the device when set to "System".
+   ══════════════════════════════════════════════════════════════════ */
+:root[data-theme='dark'] {
+  --canvas: #0d0d10;
+  --surface: #16161a;
+  --subtle: #1e1e23;
+  --subtle-hover: #26262c;
+  --line: #2b2b32;
+  --line-strong: #3a3a43;
+
+  --ink: #f2f2f5;
+  --ink-2: #b6b6c0;
+  --ink-3: #82828e;
+  --ink-inverse: #16161a;
+
+  --accent: #f2f2f5;
+  --accent-ink: #f2f2f5;
+  --accent-soft: #2e2e35;
+  --accent-wash: #25252b;
+  --canvas-tint: #1f1f24;
+  --focus-border: rgba(242, 242, 245, 0.45);
+
+  --danger: #ff6d72;
+  --danger-wash: #3b1d20;
+  --success: #4cc38a;
+  --success-wash: #173226;
+  --highlight: #5b4a12;
+
+  --ink-hover: #dcdce2;
+  --disabled: #34343b;
+  --danger-wash-hover: #4a2327;
+  --prose: #d2d2d9;
+  --panel-bg: #131316;
+  --viewer-bg: #2a2a30;
+  --glass: rgba(22, 22, 26, 0.88);
+  --scroll: #3a3a43;
+  --scroll-hover: #4a4a55;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --pro: #f2f2f5;
+  --pro-hover: #dcdce2;
+  --pro-wash: #25252b;
+
+  --shadow-pop: 0 14px 36px -8px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --canvas: #0d0d10;
+    --surface: #16161a;
+    --subtle: #1e1e23;
+    --subtle-hover: #26262c;
+    --line: #2b2b32;
+    --line-strong: #3a3a43;
+
+    --ink: #f2f2f5;
+    --ink-2: #b6b6c0;
+    --ink-3: #82828e;
+    --ink-inverse: #16161a;
+
+    --accent: #f2f2f5;
+    --accent-ink: #f2f2f5;
+    --accent-soft: #2e2e35;
+    --accent-wash: #25252b;
+    --canvas-tint: #1f1f24;
+    --focus-border: rgba(242, 242, 245, 0.45);
+
+    --danger: #ff6d72;
+    --danger-wash: #3b1d20;
+    --success: #4cc38a;
+    --success-wash: #173226;
+    --highlight: #5b4a12;
+
+    --ink-hover: #dcdce2;
+    --disabled: #34343b;
+    --danger-wash-hover: #4a2327;
+    --prose: #d2d2d9;
+    --panel-bg: #131316;
+    --viewer-bg: #2a2a30;
+    --glass: rgba(22, 22, 26, 0.88);
+    --scroll: #3a3a43;
+    --scroll-hover: #4a4a55;
+    --overlay: rgba(0, 0, 0, 0.55);
+    --pro: #f2f2f5;
+    --pro-hover: #dcdce2;
+    --pro-wash: #25252b;
+
+    --shadow-pop: 0 14px 36px -8px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.35);
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4);
+
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html {
+html,
+body,
+#root {
   height: 100%;
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-root);
-  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--surface);
   overflow: hidden;
   height: 100vh;
-  height: 100dvh; /* correct viewport on mobile browsers with dynamic UI chrome */
-  width: 100%;
-  display: flex;
+  height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'cv11';
 }
 
-#root {
-  width: 100%;
-  height: 100%;
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
 }
 
 button {
-  font-family: var(--font-sans);
+  cursor: pointer;
 }
 
-/* ── Scrollbar ─────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.5); }
+::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 8px; border: 2px solid var(--surface); }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
