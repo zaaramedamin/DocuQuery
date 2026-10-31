@@ -108,7 +108,7 @@ export default function AuthScreen({ embedded = false, notice: initialNotice = '
       ) : (
         <>
           <div className="auth-brand">
-            <img src="/logo.svg" alt="" className="logo-img" />
+            <img src="/logo.svg?v=2" alt="" className="logo-img" />
             <h1>
               Docu<span>Query</span>
             </h1>
@@ -236,7 +236,7 @@ export default function AuthScreen({ embedded = false, notice: initialNotice = '
           <path d="M0,0 H452 C548,58 484,136 462,200 C436,278 580,304 538,404 C512,470 484,512 496,560 H0 Z" />
         </svg>
         <span className="auth-corner">
-          <img src="/logo.svg" alt="DocuQuery" />
+          <img src="/logo.svg?v=2" alt="DocuQuery" />
         </span>
         {form}
         <p className="auth-hero" aria-hidden="true">

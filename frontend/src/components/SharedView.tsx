@@ -63,7 +63,7 @@ export default function SharedView({
     <div className="shared-page">
       <header className="shared-header">
         <a className="shared-brand" href="#" onClick={(e) => (e.preventDefault(), onExit())}>
-          <img src="/logo.svg" alt="" />
+          <img src="/logo.svg?v=2" alt="" />
           <span>DocuQuery</span>
         </a>
         <button className="btn btn-outline" onClick={onExit}>

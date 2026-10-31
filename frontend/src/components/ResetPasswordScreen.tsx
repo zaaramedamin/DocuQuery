@@ -43,7 +43,7 @@ export default function ResetPasswordScreen({
     <div className="auth-screen">
       <form className="auth-card" onSubmit={submit} noValidate>
         <div className="auth-brand">
-          <img src="/logo.svg" alt="" className="logo-img" />
+          <img src="/logo.svg?v=2" alt="" className="logo-img" />
           <h1>
             Docu<span>Query</span>
           </h1>

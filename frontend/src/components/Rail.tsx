@@ -54,7 +54,7 @@ export default function Rail({
 
   return (
     <nav className="rail" aria-label={t('Main')}>
-      <img src="/logo.svg" alt="DocuQuery" className="rail-logo" />
+      <img src="/logo.svg?v=2" alt="DocuQuery" className="rail-logo" />
 
       <div className="rail-group">
         <RailButton label={t('New chat')} active={!hasConversation && !historyOpen} onClick={onNewChat}>
